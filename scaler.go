@@ -1,1 +1,5 @@
-package scaler
+package main
+
+func main(){
+
+}
