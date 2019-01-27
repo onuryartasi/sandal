@@ -1,0 +1,17 @@
+syntax="proto3";
+
+package v1;
+import "google/protobuf/empty.proto";
+
+message containers{
+    repeated container container = 1;
+}
+message container {
+    string id = 1;
+    repeated string names = 2;
+    string image = 3;
+}
+
+service containerListService {
+    rpc containerList(google.protobuf.Empty) returns (containers);
+}
