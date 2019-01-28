@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"log"
-	"github.com/onuryartasi/scaler-api"
 	"os"
 	"fmt"
 )
@@ -52,8 +51,6 @@ func main(){
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
-
-
 
 
 }
