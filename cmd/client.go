@@ -35,12 +35,12 @@ func usage() {
 	log.Fatalf(InfoColor,usageStr)
 }
 
-func connect() v1.ContainerListServiceClient{
+func connect() v1.ContainerServiceClient{
 	conn,err := grpc.Dial(":4444",grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
-	client := v1.NewContainerListServiceClient(conn)
+	client := v1.NewContainerServiceClient(conn)
 	return client
 }
 func main(){
@@ -82,16 +82,14 @@ func main(){
 	case "stop":
 		client := connect()
 		containerId := string(os.Args[2])
-		resp,err := client.ContainerStop(context.Background(),&v1.ContainerId{ContainerId:containerId})
+		_,err := client.ContainerStop(context.Background(),&v1.ContainerId{ContainerId:containerId})
 		if err != nil{
 			log.Printf(ErrorColor,"Error: Contaner Stop error")
 		}
-		fmt.Println(resp)
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
-
 	log.SetFlags(0)
 	flag.Usage = usage
 
