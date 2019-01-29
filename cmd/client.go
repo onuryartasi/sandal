@@ -49,6 +49,7 @@ func main(){
 	var maxValue string
 
 	flag.NewFlagSet("list",flag.ExitOnError)
+	flag.NewFlagSet("stop",flag.ExitOnError)
 	create := flag.NewFlagSet("create",flag.ExitOnError)
 	create.StringVar(&image,"image","","Container's image for scale")
 	create.StringVar(&minValue,"min","1","Minimum container to run (default is 1)")
@@ -78,6 +79,14 @@ func main(){
 			usage()
 		}
 		log.Printf("Container created with image: %s, min: %s, max: %s",image,minValue,maxValue)
+	case "stop":
+		client := connect()
+		containerId := string(os.Args[2])
+		resp,err := client.ContainerStop(context.Background(),&v1.ContainerId{ContainerId:containerId})
+		if err != nil{
+			log.Printf(ErrorColor,"Error: Contaner Stop error")
+		}
+		fmt.Println(resp)
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)

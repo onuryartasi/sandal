@@ -9,6 +9,7 @@ import (
 
 	"github.com/onuryartasi/scaler/pkg/api/v1"
 	"github.com/golang/protobuf/ptypes/empty"
+	"time"
 )
 
 var (
@@ -20,6 +21,9 @@ var (
 )
 
 type Service struct{}
+type Error struct {
+
+}
 var cli *client.Client
 func init() {
 	var err error
@@ -30,6 +34,7 @@ func init() {
 	}
 }
 
+var timeout time.Duration = 10*time.Second
 func (s *Service) ContainerList(ctx context.Context,empty *empty.Empty) (*v1.Containers, error){
 	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	if err != nil {
@@ -41,4 +46,12 @@ func (s *Service) ContainerList(ctx context.Context,empty *empty.Empty) (*v1.Con
 		rContainers = append(rContainers,&v1.Container{Names:container.Names,Id:container.ID,Image:container.Image})
 	}
 	return &v1.Containers{Container:rContainers},nil
+}
+
+
+func (s *Service) ContainerStop(ctx context.Context,containerId *v1.ContainerId) (*empty.Empty,error){
+
+
+	err := cli.ContainerStop(ctx,containerId.GetContainerId(),&timeout)
+	return &empty.Empty{},err
 }

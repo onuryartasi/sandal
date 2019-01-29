@@ -12,6 +12,13 @@ message container {
     string image = 3;
 }
 
+
+message containerId {
+    string containerId = 1;
+}
+
+
 service containerListService {
     rpc containerList(google.protobuf.Empty) returns (containers);
+    rpc containerStop(containerId) returns (google.protobuf.Empty);
 }
