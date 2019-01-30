@@ -17,8 +17,8 @@ message containerId {
     string containerId = 1;
 }
 
-
 service containerService {
     rpc containerList(google.protobuf.Empty) returns (containers);
-    rpc containerStop(containerId) returns (google.protobuf.Empty);
+    rpc containerStop(containerId) returns (containerId);
+    rpc containerStart(containerId) returns (containerId);
 }

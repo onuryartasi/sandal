@@ -23,6 +23,7 @@ var (
 	DebugColor   = "\033[0;36m%s\033[0m"
 )
 
+
 var usageStr = `
 Usage: scaler [options]
 
@@ -31,6 +32,7 @@ Options:
 	--min  	  <min-value>   	    Minimum container to run (default is 1)
 	--max     <max-value>   		Maximum container to run (0 is unlimited, default is 3)
 `
+
 func usage() {
 	log.Fatalf(InfoColor,usageStr)
 }
@@ -79,19 +81,26 @@ func main(){
 			usage()
 		}
 		log.Printf("Container created with image: %s, min: %s, max: %s",image,minValue,maxValue)
+	case "start":
+		client := connect()
+		containerId := string(os.Args[2])
+		resp,err := client.ContainerStart(context.Background(),&v1.ContainerId{ContainerId:containerId})
+		if err != nil{
+			log.Printf(ErrorColor,"Error: Contaner Start error")
+		}
+		fmt.Println(resp)
 	case "stop":
 		client := connect()
 		containerId := string(os.Args[2])
-		_,err := client.ContainerStop(context.Background(),&v1.ContainerId{ContainerId:containerId})
+		resp,err := client.ContainerStop(context.Background(),&v1.ContainerId{ContainerId:containerId})
 		if err != nil{
 			log.Printf(ErrorColor,"Error: Contaner Stop error")
 		}
+		fmt.Println(resp)
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
 	log.SetFlags(0)
 	flag.Usage = usage
-
-
 }

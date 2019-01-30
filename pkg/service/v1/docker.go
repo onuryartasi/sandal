@@ -49,9 +49,15 @@ func (s *Service) ContainerList(ctx context.Context,empty *empty.Empty) (*v1.Con
 }
 
 
-func (s *Service) ContainerStop(ctx context.Context,containerId *v1.ContainerId) (*empty.Empty,error){
+func (s *Service) ContainerStop(ctx context.Context,containerId *v1.ContainerId) (*v1.ContainerId,error){
 
 
 	err := cli.ContainerStop(ctx,containerId.GetContainerId(),&timeout)
-	return &empty.Empty{},err
+	return containerId,err
+}
+
+func (s *Service) ContainerStart(ctx context.Context,containerId *v1.ContainerId)(*v1.ContainerId,error){
+
+	err := cli.ContainerStart(ctx,containerId.GetContainerId(),types.ContainerStartOptions{})
+	return containerId,err
 }
