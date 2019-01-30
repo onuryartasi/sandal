@@ -1,9 +1,10 @@
 
 #### TO DO
-- [ ] SSL Configure gRPC
 - [ ] Writing Test
+- [ ] SSL Configure gRPC
 - [ ] Create Container with options
-- [ ] Docker Metrics data"
+- [ ] Docker Metrics data
+- [ ] Cobra cli tool
 - [x] And more ...
 
 

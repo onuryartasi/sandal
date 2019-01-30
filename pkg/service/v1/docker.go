@@ -28,7 +28,10 @@ type Error struct {
 var cli *client.Client
 func init() {
 	var err error
-	os.Setenv("DOCKER_API_VERSION", "1.37")
+	if len(os.Getenv("DOCKER_API_VERSION")) < 1{
+		os.Setenv("DOCKER_API_VERSION", "1.37")
+	}
+
 	cli,err = client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		log.Fatalf(ErrorColor,"Error: %s",err)
