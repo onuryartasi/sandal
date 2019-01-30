@@ -81,12 +81,18 @@ func main(){
 			usage()
 		}
 		log.Printf("Container created with image: %s, min: %s, max: %s",image,minValue,maxValue)
+		client := connect()
+		resp,err := client.ContainerCreate(context.Background(),&v1.ContainerConfig{Image:image})
+		if err != nil{
+			log.Printf(ErrorColor,"Error: Contaner Create error")
+		}
+		fmt.Println(resp.GetId())
 	case "start":
 		client := connect()
 		containerId := string(os.Args[2])
 		resp,err := client.ContainerStart(context.Background(),&v1.ContainerId{ContainerId:containerId})
 		if err != nil{
-			log.Printf(ErrorColor,"Error: Contaner Start error")
+			log.Printf(ErrorColor,"Error: Contaner start error")
 		}
 		fmt.Println(resp)
 	case "stop":

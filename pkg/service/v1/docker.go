@@ -10,6 +10,7 @@ import (
 	"github.com/onuryartasi/scaler/pkg/api/v1"
 	"github.com/golang/protobuf/ptypes/empty"
 	"time"
+	"github.com/docker/docker/api/types/container"
 )
 
 var (
@@ -60,4 +61,9 @@ func (s *Service) ContainerStart(ctx context.Context,containerId *v1.ContainerId
 
 	err := cli.ContainerStart(ctx,containerId.GetContainerId(),types.ContainerStartOptions{})
 	return containerId,err
+}
+
+func (s *Service) ContainerCreate(ctx context.Context,config *v1.ContainerConfig)(*v1.Container,error){
+	resp,err := cli.ContainerCreate(ctx,&container.Config{Image:config.GetImage()},nil,nil,"")
+	return &v1.Container{Id:resp.ID},err
 }
