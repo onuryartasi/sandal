@@ -11,6 +11,9 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"time"
 	"github.com/docker/docker/api/types/container"
+
+	"io/ioutil"
+	"encoding/json"
 )
 
 var (
@@ -69,4 +72,19 @@ func (s *Service) ContainerStart(ctx context.Context,containerId *v1.ContainerId
 func (s *Service) ContainerCreate(ctx context.Context,config *v1.ContainerConfig)(*v1.Container,error){
 	resp,err := cli.ContainerCreate(ctx,&container.Config{Image:config.GetImage()},nil,nil,"")
 	return &v1.Container{Id:resp.ID},err
+}
+
+func (s *Service) ContainerStatStream(containerId *v1.ContainerId,stream v1.ContainerService_ContainerStatStreamServer) error{
+	var err error
+	for {
+		stats, err := cli.ContainerStats(context.Background(), containerId.GetContainerId(), false)
+		if err != nil {
+			log.Fatalf("Stats Stream Error %s", err)
+		}
+		containerStats, _ := ioutil.ReadAll(stats.Body)
+		stat := Stats{}
+		json.Unmarshal(containerStats, &stat)
+		stream.Send(&v1.ContainerStat{Name: stat.Name})
+	}
+	return err
 }

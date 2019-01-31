@@ -9,6 +9,7 @@ import (
 	"log"
 	"flag"
 	"os"
+	"io"
 )
 
 type container struct {
@@ -103,6 +104,23 @@ func main(){
 			log.Printf(ErrorColor,"Error: Contaner Stop error")
 		}
 		fmt.Println(resp)
+	case "stat":
+		client := connect()
+		containerId := string(os.Args[2])
+		stream,err := client.ContainerStatStream(context.Background(),&v1.ContainerId{ContainerId:containerId})
+		if err != nil {
+			panic(err)
+		}
+		for {
+			data, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				panic(err)
+			}
+			log.Println(data)
+		}
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)
