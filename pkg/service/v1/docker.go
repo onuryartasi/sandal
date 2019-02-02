@@ -12,7 +12,6 @@ import (
 	"time"
 	"github.com/docker/docker/api/types/container"
 
-	"io/ioutil"
 	"encoding/json"
 )
 
@@ -25,9 +24,16 @@ var (
 )
 
 type Service struct{}
-type Error struct {
-
+type Error struct {}
+var Project struct{
+	Name string
+	Containers []string
+	//ContainerOptions types.ContainerCreateConfig ## this config later
+	Min	int
+	Max int
+	CpuLimit float32
 }
+
 var cli *client.Client
 func init() {
 	var err error
@@ -77,14 +83,16 @@ func (s *Service) ContainerCreate(ctx context.Context,config *v1.ContainerConfig
 func (s *Service) ContainerStatStream(containerId *v1.ContainerId,stream v1.ContainerService_ContainerStatStreamServer) error{
 	var err error
 	for {
-		stats, err := cli.ContainerStats(context.Background(), containerId.GetContainerId(), false)
+		response, err := cli.ContainerStats(context.Background(), containerId.GetContainerId(), true)
 		if err != nil {
 			log.Fatalf("Stats Stream Error %s", err)
 		}
-		containerStats, _ := ioutil.ReadAll(stats.Body)
-		stat := Stats{}
-		json.Unmarshal(containerStats, &stat)
-		stream.Send(&v1.ContainerStat{Name: stat.Name})
+		stat := Metric{}
+		json.NewDecoder(response.Body).Decode(&stat)
+
+		stream.Send(&v1.ContainerStat{Name:stat.Name})
 	}
 	return err
 }
+
+func (s *Service) CreateProject(){}

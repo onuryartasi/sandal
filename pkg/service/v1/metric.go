@@ -120,6 +120,5 @@ type Metric struct {
 
 
 func RunMetric([]string){
-	cli := NewClient()
-	cli.Get("")
+
 }
