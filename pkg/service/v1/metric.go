@@ -3,7 +3,7 @@ package v1
 import (
 	"time"
 )
-type Stats struct {
+type Metric struct {
 	Read      time.Time `json:"read"`
 	Preread   time.Time `json:"preread"`
 	PidsStats struct {
@@ -117,3 +117,9 @@ type Stats struct {
 	} `json:"networks"`
 }
 
+
+
+func RunMetric([]string){
+	cli := NewClient()
+	cli.Get("")
+}
