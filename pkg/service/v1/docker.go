@@ -25,15 +25,18 @@ var (
 
 type Service struct{}
 type Error struct {}
-var Project struct{
-	Name string
+type Project struct{
+	Image string
 	Containers []string
 	//ContainerOptions types.ContainerCreateConfig ## this config later
 	Min	int
 	Max int
-	CpuLimit float32
+	//CpuLimit float32
 }
 
+
+
+var projects []Project
 var cli *client.Client
 func init() {
 	var err error
@@ -95,4 +98,25 @@ func (s *Service) ContainerStatStream(containerId *v1.ContainerId,stream v1.Cont
 	return err
 }
 
-func (s *Service) CreateProject(){}
+func (s *Service) CreateProject(ctx context.Context,project *v1.Project) (*v1.ProjectInfo,error) {
+	image := project.GetImage()
+	max := int(project.GetMax())
+	min := int(project.GetMin())
+
+	tmp := Project{Max:max,Min:min,Image:image}
+	var containers []string
+	for i:=0;i<min;i++{
+		resp,err := cli.ContainerCreate(context.Background(),&container.Config{Image:image},nil,nil,"")
+		if err !=nil {
+			log.Println("[CREATE_PROJECT] Creating Container error: %v",err)
+		}
+		containers = append(containers,string(resp.ID))
+	}
+	tmp.Containers = containers
+	projects = append(projects,tmp)
+	return &v1.ProjectInfo{ContainerId:containers},nil
+}
+
+func(s *Service)GetProjects() *[]Project{
+	return &projects
+}

@@ -10,6 +10,7 @@ import (
 	"flag"
 	"os"
 	"io"
+	"strconv"
 )
 
 type container struct {
@@ -81,13 +82,20 @@ func main(){
 			log.Printf(ErrorColor,"Error: An image must be specified.")
 			usage()
 		}
-		log.Printf("Container created with image: %s, min: %s, max: %s",image,minValue,maxValue)
+		min,_ := strconv.Atoi(minValue)
+		max ,_ := strconv.Atoi(maxValue)
 		client := connect()
-		resp,err := client.ContainerCreate(context.Background(),&v1.ContainerConfig{Image:image})
-		if err != nil{
-			log.Printf(ErrorColor,"Error: Contaner Create error")
+		resp,err := client.CreateProject(context.Background(),&v1.Project{Image:image,Min:int32(min),Max:int32(max)})
+		if err != nil {
+			log.Println(err)
 		}
-		fmt.Println(resp.GetId())
+		log.Printf("Containers created : %+v",resp.ContainerId)
+
+		//resp,err := client.ContainerCreate(context.Background(),&v1.ContainerConfig{Image:image})
+		//if err != nil{
+		//	log.Printf(ErrorColor,"Error: Contaner Create error")
+		//}
+		//fmt.Println(resp.GetId())
 	case "start":
 		client := connect()
 		containerId := string(os.Args[2])

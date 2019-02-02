@@ -119,6 +119,7 @@ type Metric struct {
 
 
 
-func RunMetric([]string){
+func RunMetric(Projects []string){
+
 
 }

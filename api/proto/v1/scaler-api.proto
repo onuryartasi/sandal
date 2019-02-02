@@ -26,10 +26,20 @@ message containerStat{
     string name = 1;
 }
 
+message project{
+    string image = 1;
+    int32 min = 2;
+    int32 max = 3;
+    }
+
+message projectInfo{
+    repeated string containerId = 1;
+}
 service containerService {
     rpc containerList(google.protobuf.Empty) returns (containers);
     rpc containerStop(containerId) returns (containerId);
     rpc containerStart(containerId) returns (containerId);
     rpc containerCreate(containerConfig) returns (container);
     rpc containerStatStream(containerId) returns (stream containerStat);
+    rpc createProject(project) returns (projectInfo);
 }
