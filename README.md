@@ -5,6 +5,7 @@
 - [ ] Create Container with options
 - [ ] Create Multi-container Project with max-min value
 - [ ] Docker Metrics data
+- [ ] Go routines define for each project metrics
 - [ ] Cobra cli tool
 - [x] And more ...
 

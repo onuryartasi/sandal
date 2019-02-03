@@ -119,7 +119,13 @@ type Metric struct {
 
 
 
-func RunMetric(Projects []string){
+func RunMetric(){
 
+	projects := GetProjects()
+	a := *projects
+	for i,val:= range a{
+
+
+	}
 
 }

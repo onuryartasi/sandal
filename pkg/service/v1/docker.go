@@ -115,8 +115,11 @@ func (s *Service) CreateProject(ctx context.Context,project *v1.Project) (*v1.Pr
 	tmp.Containers = containers
 	projects = append(projects,tmp)
 	return &v1.ProjectInfo{ContainerId:containers},nil
+
 }
 
-func(s *Service)GetProjects() *[]Project{
+func GetProjects() *[]Project{
 	return &projects
 }
+
+func SetProjects() // Maybe later need it.
