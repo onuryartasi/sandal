@@ -26,6 +26,7 @@ var (
 type Service struct{}
 type Error struct {}
 type Project struct{
+	Name string
 	Image string
 	Containers []string
 	//ContainerOptions types.ContainerCreateConfig ## this config later
@@ -103,7 +104,7 @@ func (s *Service) CreateProject(ctx context.Context,project *v1.Project) (*v1.Pr
 	max := int(project.GetMax())
 	min := int(project.GetMin())
 
-	tmp := Project{Max:max,Min:min,Image:image}
+	tmp := Project{Max:max,Min:min,Image:image,Name:project.GetName()}
 	var containers []string
 	for i:=0;i<min;i++{
 		resp,err := cli.ContainerCreate(context.Background(),&container.Config{Image:image},nil,nil,"")
@@ -122,4 +123,4 @@ func GetProjects() *[]Project{
 	return &projects
 }
 
-func SetProjects() // Maybe later need it.
+//func SetProjects()  Maybe later need it.

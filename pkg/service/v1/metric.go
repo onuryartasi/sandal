@@ -119,13 +119,12 @@ type Metric struct {
 
 
 
-func RunMetric(){
+func ListenMetric(){
+	metrics := make(chan map[string]Metric)
 
-	projects := GetProjects()
-	a := *projects
-	for i,val:= range a{
+}
 
 
-	}
+func RunMetric(containersId []string) (chan<- map[string]Metric){
 
 }

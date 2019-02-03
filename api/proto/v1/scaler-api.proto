@@ -30,6 +30,7 @@ message project{
     string image = 1;
     int32 min = 2;
     int32 max = 3;
+    string name = 4;
     }
 
 message projectInfo{

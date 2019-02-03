@@ -51,11 +51,13 @@ func main(){
 	var image string
 	var minValue string
 	var maxValue string
+	var name string
 
 	flag.NewFlagSet("list",flag.ExitOnError)
 	flag.NewFlagSet("stop",flag.ExitOnError)
 	create := flag.NewFlagSet("create",flag.ExitOnError)
 	create.StringVar(&image,"image","","Container's image for scale")
+	create.StringVar(&name,"name","","Project Name")
 	create.StringVar(&minValue,"min","1","Minimum container to run (default is 1)")
 	create.StringVar(&maxValue,"max","3","Maximum container to run (0 is unlimited, default is 3)")
 
@@ -85,7 +87,7 @@ func main(){
 		min,_ := strconv.Atoi(minValue)
 		max ,_ := strconv.Atoi(maxValue)
 		client := connect()
-		resp,err := client.CreateProject(context.Background(),&v1.Project{Image:image,Min:int32(min),Max:int32(max)})
+		resp,err := client.CreateProject(context.Background(),&v1.Project{Image:image,Min:int32(min),Max:int32(max),Name:name})
 		if err != nil {
 			log.Println(err)
 		}
