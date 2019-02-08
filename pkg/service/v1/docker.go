@@ -85,7 +85,7 @@ func (s *Service) ContainerStatStream(containerId *v1.ContainerId,stream v1.Cont
 		if err != nil {
 			log.Fatalf("Stats Stream Error %s", err)
 		}
-		stat := metric.Metric{}
+		stat := p2.Metric{}
 		json.NewDecoder(response.Body).Decode(&stat)
 
 		stream.Send(&v1.ContainerStat{Name:stat.Name})
