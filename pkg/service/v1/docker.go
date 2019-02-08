@@ -13,6 +13,9 @@ import (
 	"github.com/docker/docker/api/types/container"
 
 	"encoding/json"
+	"github.com/onuryartasi/scaler/pkg/metric"
+	"strconv"
+	"fmt"
 )
 
 var (
@@ -91,7 +94,7 @@ func (s *Service) ContainerStatStream(containerId *v1.ContainerId,stream v1.Cont
 		if err != nil {
 			log.Fatalf("Stats Stream Error %s", err)
 		}
-		stat := Metric{}
+		stat := metric.Metric{}
 		json.NewDecoder(response.Body).Decode(&stat)
 
 		stream.Send(&v1.ContainerStat{Name:stat.Name})
@@ -107,9 +110,12 @@ func (s *Service) CreateProject(ctx context.Context,project *v1.Project) (*v1.Pr
 	tmp := Project{Max:max,Min:min,Image:image,Name:project.GetName()}
 	var containers []string
 	for i:=0;i<min;i++{
-		resp,err := cli.ContainerCreate(context.Background(),&container.Config{Image:image},nil,nil,"")
-		if err !=nil {
+
+		resp,err := cli.ContainerCreate(context.Background(),&container.Config{Image:image},nil,nil,fmt.Sprintf("%s%s",project.GetName(),strconv.Itoa(i+1)))
+
+		if err != nil {
 			log.Println("[CREATE_PROJECT] Creating Container error: %v",err)
+
 		}
 		containers = append(containers,string(resp.ID))
 	}

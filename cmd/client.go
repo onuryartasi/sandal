@@ -84,6 +84,10 @@ func main(){
 			log.Printf(ErrorColor,"Error: An image must be specified.")
 			usage()
 		}
+		if len(name) < 1 {
+			log.Printf(ErrorColor,"Error: A project name must be specified.")
+			usage()
+		}
 		min,_ := strconv.Atoi(minValue)
 		max ,_ := strconv.Atoi(maxValue)
 		client := connect()
