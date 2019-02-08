@@ -4,11 +4,9 @@ import (
 	"time"
 	"fmt"
 	"encoding/json"
-	"log"
-
-
 	project "github.com/onuryartasi/scaler/pkg/types"
 	"github.com/onuryartasi/scaler/pkg/request"
+	"log"
 )
 type Metric struct {
 	Read      time.Time `json:"read"`
@@ -134,19 +132,18 @@ type Metric struct {
 }*/
 
 func ProjectMetric(project project.Project) (){
-	var sum int64
+	//var sum int64
 	channels := make([]chan Metric,len(project.Containers))
 	for i,id := range project.Containers {
 		channels[i] = make(chan Metric)
 		go ContainerMetric(channels[i],id)
 	}
 	for {
-		time.Sleep(time.Second * 10)
+		//time.Sleep(time.Second * 3)
 		for _, value := range channels {
-
 			met := <-value
-			sum += met.CPUStats.CPUUsage.TotalUsage
-			log.Println(sum)
+			asd := calculateCPUPercentUnix(met.CPUStats.CPUUsage.TotalUsage,met.CPUStats.SystemCPUUsage,met.PrecpuStats.CPUUsage.TotalUsage,met.PrecpuStats.SystemCPUUsage,len(met.CPUStats.CPUUsage.PercpuUsage))
+			log.Println(asd)
 		}
 
 	}
@@ -165,4 +162,19 @@ func ContainerMetric(stream chan Metric,id string){
 		stream <- metric
 	}
 
+}
+
+func calculateCPUPercentUnix(TotalCpu int64,TotalSystem int64,previousCPU, previousSystem int64,cpucount int) float64 {
+	var (
+		cpuPercent = 0.0
+		// calculate the change for the cpu usage of the container in between readings
+		cpuDelta = float64(TotalCpu) - float64(previousCPU)
+		// calculate the change for the entire system between readings
+		systemDelta = float64(TotalSystem) - float64(previousSystem)
+	)
+
+	if systemDelta > 0.0 && cpuDelta > 0.0 {
+		cpuPercent = (cpuDelta / systemDelta) * float64(cpucount) * 100.0
+	}
+	return cpuPercent
 }
