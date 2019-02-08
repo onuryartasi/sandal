@@ -133,6 +133,7 @@ type Metric struct {
 
 func ProjectMetric(project project.Project) (){
 	//var sum int64
+
 	channels := make([]chan Metric,len(project.Containers))
 	for i,id := range project.Containers {
 		channels[i] = make(chan Metric)
@@ -140,11 +141,14 @@ func ProjectMetric(project project.Project) (){
 	}
 	for {
 		//time.Sleep(time.Second * 3)
-		for _, value := range channels {
+		var sum float64 = 0.0
+		for i, value := range channels {
 			met := <-value
-			asd := calculateCPUPercentUnix(met.CPUStats.CPUUsage.TotalUsage,met.CPUStats.SystemCPUUsage,met.PrecpuStats.CPUUsage.TotalUsage,met.PrecpuStats.SystemCPUUsage,len(met.CPUStats.CPUUsage.PercpuUsage))
-			log.Println(asd)
-		}
+			CpuPercent := calculateCPUPercentUnix(met.CPUStats.CPUUsage.TotalUsage,met.CPUStats.SystemCPUUsage,met.PrecpuStats.CPUUsage.TotalUsage,met.PrecpuStats.SystemCPUUsage,len(met.CPUStats.CPUUsage.PercpuUsage))
+			sum+= CpuPercent
+			log.Printf("%v.Container Cpu : %v",i,CpuPercent)
+			}
+		log.Printf("Sum: %v",sum/float64(len(channels)))
 
 	}
 }
