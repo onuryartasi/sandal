@@ -16,6 +16,7 @@ import (
 	"github.com/onuryartasi/scaler/pkg/metric"
 	"strconv"
 	"fmt"
+	p2 "github.com/onuryartasi/scaler/pkg/types"
 )
 
 var (
@@ -28,19 +29,9 @@ var (
 
 type Service struct{}
 type Error struct {}
-type Project struct{
-	Name string
-	Image string
-	Containers []string
-	//ContainerOptions types.ContainerCreateConfig ## this config later
-	Min	int
-	Max int
-	//CpuLimit float32
-}
 
 
-
-var projects []Project
+var projects []p2.Project
 var cli *client.Client
 func init() {
 	var err error
@@ -107,7 +98,8 @@ func (s *Service) CreateProject(ctx context.Context,project *v1.Project) (*v1.Pr
 	max := int(project.GetMax())
 	min := int(project.GetMin())
 
-	tmp := Project{Max:max,Min:min,Image:image,Name:project.GetName()}
+	tmp := p2.Project{Max:max,Min:min,Image:image,Name:project.GetName()}
+
 	var containers []string
 	for i:=0;i<min;i++{
 
@@ -117,15 +109,21 @@ func (s *Service) CreateProject(ctx context.Context,project *v1.Project) (*v1.Pr
 			log.Println("[CREATE_PROJECT] Creating Container error: %v",err)
 
 		}
+		err = cli.ContainerStart(ctx,resp.ID,types.ContainerStartOptions{})
+		if err != nil{
+			log.Printf("Contaner Not starting, %s",err)
+		}
 		containers = append(containers,string(resp.ID))
 	}
+
 	tmp.Containers = containers
+	go metric.ProjectMetric(tmp)
 	projects = append(projects,tmp)
 	return &v1.ProjectInfo{ContainerId:containers},nil
 
 }
 
-func GetProjects() *[]Project{
+func GetProjects() *[]p2.Project{
 	return &projects
 }
 

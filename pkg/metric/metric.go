@@ -1,7 +1,14 @@
-package v1
+package metric
 
 import (
 	"time"
+	"fmt"
+	"encoding/json"
+	"log"
+
+
+	project "github.com/onuryartasi/scaler/pkg/types"
+	"github.com/onuryartasi/scaler/pkg/request"
 )
 type Metric struct {
 	Read      time.Time `json:"read"`
@@ -118,13 +125,44 @@ type Metric struct {
 }
 
 
+/*func INITMetric(){
+	projects := v1.GetProjects()
+	for _,project := range *projects {
+		go ProjectMetric(project)
+	}
 
-func ListenMetric(){
-	metrics := make(chan map[string]Metric)
+}*/
 
+func ProjectMetric(project project.Project) (){
+	var sum int64
+	channels := make([]chan Metric,len(project.Containers))
+	for i,id := range project.Containers {
+		channels[i] = make(chan Metric)
+		go ContainerMetric(channels[i],id)
+	}
+	for {
+		time.Sleep(time.Second * 10)
+		for _, value := range channels {
+
+			met := <-value
+			sum += met.CPUStats.CPUUsage.TotalUsage
+			log.Println(sum)
+		}
+
+	}
 }
 
+func ContainerMetric(stream chan Metric,id string){
+	var metric = Metric{}
+	client := request.NewClient()
 
-func RunMetric(containersId []string) (chan<- map[string]Metric){
+		response, err := client.Get(fmt.Sprintf("http://v1.28/containers/%s/stats",id))
+		if err != nil {
+			panic(err)
+		}
+	for{
+		json.NewDecoder(response.Body).Decode(&metric)
+		stream <- metric
+	}
 
 }
