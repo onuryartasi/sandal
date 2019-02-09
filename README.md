@@ -7,6 +7,7 @@
 - [ ] Docker Metrics data
 - [ ] Go routines define for each project metrics
 - [ ] Cobra cli tool
+- [ ] Daemon Service scalerd
 - [x] And more ...
 
 
