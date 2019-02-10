@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func TestDockerSocket(t *testing.T){
+func TestRequest_DockerSocket(t *testing.T){
 	client := NewClient()
 	response, err := client.Get("http://v1.37/_ping")
 	if err != nil {
