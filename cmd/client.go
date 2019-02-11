@@ -1,16 +1,17 @@
 package main
 
 import (
-	"google.golang.org/grpc"
-	"github.com/onuryartasi/scaler/pkg/api/v1"
 	"context"
-	"github.com/golang/protobuf/ptypes/empty"
-	"fmt"
-	"log"
 	"flag"
-	"os"
+	"fmt"
 	"io"
+	"log"
+	"os"
 	"strconv"
+
+	"github.com/golang/protobuf/ptypes/empty"
+	v1 "github.com/onuryartasi/scaler/pkg/api/v1"
+	"google.golang.org/grpc"
 )
 
 type container struct {
@@ -25,7 +26,6 @@ var (
 	DebugColor   = "\033[0;36m%s\033[0m"
 )
 
-
 var usageStr = `
 Usage: scaler [options]
 
@@ -36,92 +36,101 @@ Options:
 `
 
 func usage() {
-	log.Fatalf(InfoColor,usageStr)
+	log.Fatalf(InfoColor, usageStr)
 }
 
-func connect() v1.ContainerServiceClient{
-	conn,err := grpc.Dial(":4444",grpc.WithInsecure())
+func connect() v1.ContainerServiceClient {
+	conn, err := grpc.Dial(":4444", grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
 	client := v1.NewContainerServiceClient(conn)
 	return client
 }
-func main(){
+func main() {
 	var image string
 	var minValue string
 	var maxValue string
 	var name string
 
-	flag.NewFlagSet("list",flag.ExitOnError)
-	flag.NewFlagSet("stop",flag.ExitOnError)
-	create := flag.NewFlagSet("create",flag.ExitOnError)
-	create.StringVar(&image,"image","","Container's image for scale")
-	create.StringVar(&name,"name","","Project Name")
-	create.StringVar(&minValue,"min","1","Minimum container to run (default is 1)")
-	create.StringVar(&maxValue,"max","3","Maximum container to run (0 is unlimited, default is 3)")
+	flag.NewFlagSet("list", flag.ExitOnError)
+	flag.NewFlagSet("stop", flag.ExitOnError)
+	create := flag.NewFlagSet("create", flag.ExitOnError)
+	create.StringVar(&image, "image", "", "Container's image for scale")
+	create.StringVar(&name, "name", "", "Project Name")
+	create.StringVar(&minValue, "min", "1", "Minimum container to run (default is 1)")
+	create.StringVar(&maxValue, "max", "3", "Maximum container to run (0 is unlimited, default is 3)")
 
 	log.SetFlags(0)
 	flag.Usage = usage
-	if len(os.Args)<2{
+	if len(os.Args) < 2 {
 		usage()
 	}
 	switch os.Args[1] {
 	case "list":
 
 		client := connect()
-		resp, err := client.ContainerList(context.Background(),&empty.Empty{})
+		resp, err := client.ContainerList(context.Background(), &empty.Empty{})
 		if err != nil {
-			log.Fatalf("Container List Error : %s",err)
+			log.Fatalf("Container List Error : %s", err)
 		}
-		for _,container := range resp.GetContainer(){
-			fmt.Println(container.Id,container.Names,container.Image)
+		for _, container := range resp.GetContainer() {
+			fmt.Println(container.Id, container.Names, container.Image)
 		}
 
 	case "create":
 		create.Parse(os.Args[2:])
-		if len(image) < 1{
-			log.Printf(ErrorColor,"Error: An image must be specified.")
+		if len(image) < 1 {
+			log.Printf(ErrorColor, "Error: An image must be specified.")
 			usage()
 		}
 		if len(name) < 1 {
-			log.Printf(ErrorColor,"Error: A project name must be specified.")
+			log.Printf(ErrorColor, "Error: A project name must be specified.")
 			usage()
 		}
-		min,_ := strconv.Atoi(minValue)
-		max ,_ := strconv.Atoi(maxValue)
+		min, _ := strconv.Atoi(minValue)
+		max, _ := strconv.Atoi(maxValue)
 		client := connect()
-		resp,err := client.CreateProject(context.Background(),&v1.Project{Image:image,Min:int32(min),Max:int32(max),Name:name})
+		resp, err := client.CreateProject(context.Background(), &v1.Project{Image: image, Min: int32(min), Max: int32(max), Name: name})
 		if err != nil {
 			log.Println(err)
 		}
-		log.Printf("Containers created : %+v",resp.ContainerId)
+		log.Printf("Containers created : %+v", resp.ContainerId)
 
 		//resp,err := client.ContainerCreate(context.Background(),&v1.ContainerConfig{Image:image})
 		//if err != nil{
 		//	log.Printf(ErrorColor,"Error: Contaner Create error")
 		//}
 		//fmt.Println(resp.GetId())
+	case "remove":
+		client := connect()
+		containerID := string(os.Args[2])
+		resp, err := client.ContainerRemove(context.Background(), &v1.ContainerId{ContainerId: containerID})
+		if err != nil {
+			log.Printf(ErrorColor, "Error: Container Remove Error: %v", err)
+		}
+		fmt.Println(resp.GetContainerId())
+
 	case "start":
 		client := connect()
 		containerId := string(os.Args[2])
-		resp,err := client.ContainerStart(context.Background(),&v1.ContainerId{ContainerId:containerId})
-		if err != nil{
-			log.Printf(ErrorColor,"Error: Contaner start error")
+		resp, err := client.ContainerStart(context.Background(), &v1.ContainerId{ContainerId: containerId})
+		if err != nil {
+			log.Printf(ErrorColor, "Error: Container start error %v", err)
 		}
 		fmt.Println(resp)
 	case "stop":
 		client := connect()
 		containerId := string(os.Args[2])
-		resp,err := client.ContainerStop(context.Background(),&v1.ContainerId{ContainerId:containerId})
-		if err != nil{
-			log.Printf(ErrorColor,"Error: Contaner Stop error")
+		resp, err := client.ContainerStop(context.Background(), &v1.ContainerId{ContainerId: containerId})
+		if err != nil {
+			log.Printf(ErrorColor, "Error: Contaner Stop error")
 		}
 		fmt.Println(resp)
 	case "stat":
 		client := connect()
 		containerId := string(os.Args[2])
-		stream,err := client.ContainerStatStream(context.Background(),&v1.ContainerId{ContainerId:containerId})
+		stream, err := client.ContainerStatStream(context.Background(), &v1.ContainerId{ContainerId: containerId})
 		if err != nil {
 			panic(err)
 		}

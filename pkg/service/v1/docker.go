@@ -79,6 +79,13 @@ func (s *Service) ContainerCreate(ctx context.Context, config *v1.ContainerConfi
 	resp, err := cli.ContainerCreate(ctx, &container.Config{Image: config.GetImage()}, nil, nil, "")
 	return &v1.Container{Id: resp.ID}, err
 }
+func (s *Service) ContainerRemove(ctx context.Context, containerID *v1.ContainerId) (*v1.ContainerId, error) {
+	err := cli.ContainerRemove(ctx, containerID.GetContainerId(), types.ContainerRemoveOptions{})
+	if err != nil {
+		log.Fatalf("Container Remove Error: %v", err)
+	}
+	return containerID, err
+}
 
 func (s *Service) ContainerStatStream(containerId *v1.ContainerId, stream v1.ContainerService_ContainerStatStreamServer) error {
 	var err error

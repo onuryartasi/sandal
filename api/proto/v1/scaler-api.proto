@@ -41,6 +41,7 @@ service containerService {
     rpc containerStop(containerId) returns (containerId);
     rpc containerStart(containerId) returns (containerId);
     rpc containerCreate(containerConfig) returns (container);
+    rpc containerRemove (containerId) returns (containerId);
     rpc containerStatStream(containerId) returns (stream containerStat);
     rpc createProject(project) returns (projectInfo);
 }
