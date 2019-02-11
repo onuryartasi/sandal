@@ -1,6 +1,7 @@
 
 #### TO DO
-- [ ] Writing Test
+- [x] Writing Test
+- [ ] Container remove feature
 - [ ] SSL Configure gRPC
 - [ ] Create Container with options
 - [ ] Create Multi-container Project with max-min value

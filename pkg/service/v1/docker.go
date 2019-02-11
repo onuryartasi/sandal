@@ -39,7 +39,7 @@ var cli *client.Client
 func init() {
 	var err error
 	if len(os.Getenv("DOCKER_API_VERSION")) < 1 {
-		os.Setenv("DOCKER_API_VERSION", "1.37")
+		os.Setenv("DOCKER_API_VERSION", "1.38")
 	}
 
 	cli, err = client.NewClientWithOpts(client.FromEnv)
