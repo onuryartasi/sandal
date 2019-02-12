@@ -1,13 +1,12 @@
 package metric
 
 import (
-	"fmt"
 	"encoding/json"
-	p2 "github.com/onuryartasi/scaler/pkg/types"
-	"github.com/onuryartasi/scaler/pkg/request"
-	"log"
-)
+	"fmt"
 
+	"github.com/onuryartasi/scaler/pkg/request"
+	p2 "github.com/onuryartasi/scaler/pkg/types"
+)
 
 /*func INITMetric(){
 	projects := v1.GetProjects()
@@ -17,44 +16,43 @@ import (
 
 }*/
 
-func ProjectMetric(project p2.Project) (){
+func ProjectMetric(project p2.Project) {
 	//var sum int64
 
-	channels := make([]chan p2.Metric,len(project.Containers))
-	for i,id := range project.Containers {
+	channels := make([]chan p2.Metric, len(project.Containers))
+	for i, id := range project.Containers {
 		channels[i] = make(chan p2.Metric)
-		go ContainerMetric(channels[i],id)
+		go ContainerMetric(channels[i], id)
 	}
 	for {
 		//time.Sleep(time.Second * 3)
 		var sum float64 = 0.0
-		for i, value := range channels {
+		for _, value := range channels {
 			met := <-value
-			CpuPercent := calculateCPUPercentUnix(met.CPUStats.CPUUsage.TotalUsage,met.CPUStats.SystemCPUUsage,met.PrecpuStats.CPUUsage.TotalUsage,met.PrecpuStats.SystemCPUUsage,len(met.CPUStats.CPUUsage.PercpuUsage))
-			sum+= CpuPercent
-			log.Printf("%v.Container Cpu : %v",i,CpuPercent)
-			}
-		log.Printf("Sum: %v",sum/float64(len(channels)))
+			CpuPercent := calculateCPUPercentUnix(met.CPUStats.CPUUsage.TotalUsage, met.CPUStats.SystemCPUUsage, met.PrecpuStats.CPUUsage.TotalUsage, met.PrecpuStats.SystemCPUUsage, len(met.CPUStats.CPUUsage.PercpuUsage))
+			sum += CpuPercent
+
+		}
 
 	}
 }
 
-func ContainerMetric(stream chan p2.Metric,id string){
+func ContainerMetric(stream chan p2.Metric, id string) {
 	var metric = p2.Metric{}
 	client := request.NewClient()
 
-		response, err := client.Get(fmt.Sprintf("http://v1.28/containers/%s/stats",id))
-		if err != nil {
-			panic(err)
-		}
-	for{
+	response, err := client.Get(fmt.Sprintf("http://v1.38/containers/%s/stats", id))
+	if err != nil {
+		panic(err)
+	}
+	for {
 		json.NewDecoder(response.Body).Decode(&metric)
 		stream <- metric
 	}
 
 }
 
-func calculateCPUPercentUnix(TotalCpu int64,TotalSystem int64,previousCPU, previousSystem int64,cpucount int) float64 {
+func calculateCPUPercentUnix(TotalCpu int64, TotalSystem int64, previousCPU, previousSystem int64, cpucount int) float64 {
 	var (
 		cpuPercent = 0.0
 		// calculate the change for the cpu usage of the container in between readings
