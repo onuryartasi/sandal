@@ -39,7 +39,7 @@ var cli *client.Client
 func init() {
 	var err error
 	if len(os.Getenv("DOCKER_API_VERSION")) < 1 {
-		os.Setenv("DOCKER_API_VERSION", "1.38")
+		os.Setenv("DOCKER_API_VERSION", "1.37")
 	}
 
 	cli, err = client.NewClientWithOpts(client.FromEnv)
@@ -112,7 +112,7 @@ func (s *Service) CreateProject(ctx context.Context, project *v1.Project) (*v1.P
 	var containers []string
 	for i := 0; i < min; i++ {
 
-		resp, err := cli.ContainerCreate(context.Background(), &container.Config{Image: image}, &container.HostConfig{Resources: container.Resources{CPUQuota: 1000}}, nil, fmt.Sprintf("%s%s", project.GetName(), strconv.Itoa(i+1)))
+		resp, err := cli.ContainerCreate(context.Background(), &container.Config{Image: image}, &container.HostConfig{Resources: container.Resources{CPUQuota: 10000}}, nil, fmt.Sprintf("%s%s", project.GetName(), strconv.Itoa(i+1)))
 
 		if err != nil {
 			log.Printf("[CREATE_PROJECT] Creating Container error: %v", err)

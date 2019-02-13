@@ -3,6 +3,7 @@ package metric
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/onuryartasi/scaler/pkg/request"
 	p2 "github.com/onuryartasi/scaler/pkg/types"
@@ -29,9 +30,10 @@ func ProjectMetric(project p2.Project) {
 		var sum float64 = 0.0
 		for _, value := range channels {
 			met := <-value
-			CpuPercent := calculateCPUPercentUnix(met.CPUStats.CPUUsage.TotalUsage, met.CPUStats.SystemCPUUsage, met.PrecpuStats.CPUUsage.TotalUsage, met.PrecpuStats.SystemCPUUsage, len(met.CPUStats.CPUUsage.PercpuUsage))
-			sum += CpuPercent
 
+			CpuPercent := calculateCPUPercentUnix(met.CPUStats.CPUUsage.TotalUsage, met.CPUStats.SystemCPUUsage, met.PrecpuStats.CPUUsage.TotalUsage, met.PrecpuStats.SystemCPUUsage, len(met.CPUStats.CPUUsage.PercpuUsage))
+
+			sum += CpuPercent
 		}
 
 	}
@@ -41,7 +43,7 @@ func ContainerMetric(stream chan p2.Metric, id string) {
 	var metric = p2.Metric{}
 	client := request.NewClient()
 
-	response, err := client.Get(fmt.Sprintf("http://v1.38/containers/%s/stats", id))
+	response, err := client.Get(fmt.Sprintf("http://v1.37/containers/%s/stats", id))
 	if err != nil {
 		panic(err)
 	}
@@ -61,8 +63,14 @@ func calculateCPUPercentUnix(TotalCpu int64, TotalSystem int64, previousCPU, pre
 		systemDelta = float64(TotalSystem) - float64(previousSystem)
 	)
 
+	// if containerCpuePercent == 100 {
+	// 	containerCpuePercent = 0
+	// }
+
 	if systemDelta > 0.0 && cpuDelta > 0.0 {
 		cpuPercent = (cpuDelta / systemDelta) * float64(cpucount) * 100.0
+		containerCpuePercent := (cpuDelta)
+		log.Println(containerCpuePercent)
 	}
 	return cpuPercent
 }
