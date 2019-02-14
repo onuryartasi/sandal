@@ -31,7 +31,7 @@ func ProjectMetric(project p2.Project) {
 		for _, value := range channels {
 			met := <-value
 
-			CpuPercent := calculateCPUPercentUnix(met.CPUStats.CPUUsage.TotalUsage, met.CPUStats.SystemCPUUsage, met.PrecpuStats.CPUUsage.TotalUsage, met.PrecpuStats.SystemCPUUsage, len(met.CPUStats.CPUUsage.PercpuUsage))
+			CpuPercent := calculateCPUPercentUnix(met.PrecpuStats.ThrottlingData.ThrottledTime, met.CPUStats.ThrottlingData.ThrottledTime, met.CPUStats.CPUUsage.TotalUsage, met.CPUStats.SystemCPUUsage, met.PrecpuStats.CPUUsage.TotalUsage, met.PrecpuStats.SystemCPUUsage, len(met.CPUStats.CPUUsage.PercpuUsage))
 
 			sum += CpuPercent
 		}
@@ -54,23 +54,24 @@ func ContainerMetric(stream chan p2.Metric, id string) {
 
 }
 
-func calculateCPUPercentUnix(TotalCpu int64, TotalSystem int64, previousCPU, previousSystem int64, cpucount int) float64 {
+func calculateCPUPercentUnix(PreThrottledTime int, ThrottledTime int, TotalCpu int64, TotalSystem int64, previousCPU, previousSystem int64, cpucount int) float64 {
 	var (
 		cpuPercent = 0.0
 		// calculate the change for the cpu usage of the container in between readings
 		cpuDelta = float64(TotalCpu) - float64(previousCPU)
 		// calculate the change for the entire system between readings
-		systemDelta = float64(TotalSystem) - float64(previousSystem)
+		systemDelta        = float64(TotalSystem) - float64(previousSystem)
+		ThrottledTimeDelta = float64(ThrottledTime) - float64(PreThrottledTime)
 	)
 
 	// if containerCpuePercent == 100 {
 	// 	containerCpuePercent = 0
 	// }
-
+	//(TotalCpu/int64(ThrottledTime))*100
+	log.Println("->", cpuDelta, "->", ThrottledTimeDelta, "Divedi->", cpuDelta/ThrottledTimeDelta)
+	log.Println(TotalCpu)
 	if systemDelta > 0.0 && cpuDelta > 0.0 {
 		cpuPercent = (cpuDelta / systemDelta) * float64(cpucount) * 100.0
-		containerCpuePercent := (cpuDelta)
-		log.Println(containerCpuePercent)
 	}
 	return cpuPercent
 }
