@@ -60,14 +60,14 @@ func calculateCPUPercentUnix(PreThrottledTime int, ThrottledTime int, TotalCpu i
 		// calculate the change for the cpu usage of the container in between readings
 		cpuDelta = float64(TotalCpu) - float64(previousCPU)
 		// calculate the change for the entire system between readings
-		systemDelta        = float64(TotalSystem) - float64(previousSystem)
-		ThrottledTimeDelta = float64(ThrottledTime) - float64(PreThrottledTime)
+		systemDelta = float64(TotalSystem) - float64(previousSystem)
 	)
-
-	if systemDelta > 0.0 && cpuDelta > 0.0 && ThrottledTimeDelta > 0.0 {
+	var Quota float64 = 200000000
+	if systemDelta > 0.0 && cpuDelta > 0.0 {
 		//log.Println("->", cpuDelta, "->", ThrottledTimeDelta, "Divedi->", (cpuDelta/ThrottledTimeDelta)*float64(cpu)*100, "-", cpu)
-		cpuPercent = (cpuDelta / systemDelta) * float64(cpu) * 100
+		//cpuPercent = (cpuDelta / systemDelta) * float64(cpu) * 100
 		//cpuPercent = (cpuDelta / ThrottledTimeDelta) * float64(cpu) * 100
+		cpuPercent = (cpuDelta / Quota) * 100.0
 	}
 	return cpuPercent
 }
