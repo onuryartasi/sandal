@@ -52,6 +52,7 @@ func main() {
 	var minValue string
 	var maxValue string
 	var name string
+	var cpuValue string
 
 	flag.NewFlagSet("list", flag.ExitOnError)
 	flag.NewFlagSet("stop", flag.ExitOnError)
@@ -60,6 +61,7 @@ func main() {
 	create.StringVar(&name, "name", "", "Project Name")
 	create.StringVar(&minValue, "min", "1", "Minimum container to run (default is 1)")
 	create.StringVar(&maxValue, "max", "3", "Maximum container to run (0 is unlimited, default is 3)")
+	create.StringVar(&cpuValue, "cpu", "1", "Container cpu limit")
 
 	log.SetFlags(0)
 	flag.Usage = usage
@@ -90,8 +92,9 @@ func main() {
 		}
 		min, _ := strconv.Atoi(minValue)
 		max, _ := strconv.Atoi(maxValue)
+		cpu, _ := strconv.ParseFloat(cpuValue, 32)
 		client := connect()
-		resp, err := client.CreateProject(context.Background(), &v1.Project{Image: image, Min: int32(min), Max: int32(max), Name: name})
+		resp, err := client.CreateProject(context.Background(), &v1.Project{Cpu: float32(cpu), Image: image, Min: int32(min), Max: int32(max), Name: name})
 		if err != nil {
 			log.Println(err)
 		}

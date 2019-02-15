@@ -2,13 +2,14 @@ package types
 
 import "time"
 
-type Project struct{
-	Name string
-	Image string
+type Project struct {
+	Name       string
+	Image      string
 	Containers []string
 	//ContainerOptions types.ContainerCreateConfig ## this config later
-	Min	int
+	Min int
 	Max int
+	Cpu float32
 	//CpuLimit float32
 }
 type Metric struct {

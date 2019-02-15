@@ -31,6 +31,7 @@ message project{
     int32 min = 2;
     int32 max = 3;
     string name = 4;
+    float cpu = 5;
     }
 
 message projectInfo{

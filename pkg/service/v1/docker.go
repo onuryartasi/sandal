@@ -106,13 +106,14 @@ func (s *Service) CreateProject(ctx context.Context, project *v1.Project) (*v1.P
 	image := project.GetImage()
 	max := int(project.GetMax())
 	min := int(project.GetMin())
+	cpu := project.GetCpu()
 
-	tmp := p2.Project{Max: max, Min: min, Image: image, Name: project.GetName()}
+	tmp := p2.Project{Max: max, Min: min, Image: image, Name: project.GetName(), Cpu: cpu}
 
 	var containers []string
 	for i := 0; i < min; i++ {
 
-		resp, err := cli.ContainerCreate(context.Background(), &container.Config{Image: image}, &container.HostConfig{Resources: container.Resources{CPUQuota: 20000}}, nil, fmt.Sprintf("%s%s", project.GetName(), strconv.Itoa(i+1)))
+		resp, err := cli.ContainerCreate(context.Background(), &container.Config{Image: image}, &container.HostConfig{Resources: container.Resources{CPUQuota: int64(cpu * 100000)}}, nil, fmt.Sprintf("%s%s", project.GetName(), strconv.Itoa(i+1)))
 
 		if err != nil {
 			log.Printf("[CREATE_PROJECT] Creating Container error: %v", err)
