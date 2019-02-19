@@ -12,6 +12,9 @@ type Project struct {
 	Cpu float32
 	//CpuLimit float32
 }
+type RunningProjects struct {
+	Projects []Project
+}
 type Metric struct {
 	Read      time.Time `json:"read"`
 	Preread   time.Time `json:"preread"`
