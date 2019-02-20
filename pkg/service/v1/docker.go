@@ -33,7 +33,7 @@ var (
 type Service struct{}
 type Error struct{}
 
-var projects []p2.Project
+var projects = make(map[string]p2.Project)
 var cli *client.Client
 
 func init() {
@@ -128,12 +128,25 @@ func (s *Service) CreateProject(ctx context.Context, project *v1.Project) (*v1.P
 
 	tmp.Containers = containers
 	go metric.ProjectMetric(tmp)
-	projects = append(projects, tmp)
+	projects[project.GetName()] = tmp
 	return &v1.ProjectInfo{ContainerId: containers}, nil
 
 }
 
-func GetProjects() *[]p2.Project {
+func (s *Service) StopProject(ctx context.Context, projectRequest *v1.StopProjectRequest) (*v1.StopProjectResponse, error) {
+	projectName := projectRequest.GetProjectName()
+	project := projects[projectName]
+	for _, containerID := range project.Containers {
+		err := cli.ContainerStop(ctx, containerID, &timeout)
+		if err != nil {
+			log.Fatalf("Error stoping container in project")
+		}
+	}
+	return &v1.StopProjectResponse{ContainerID: project.Containers}, nil
+
+}
+
+func GetProjects() *map[string]p2.Project {
 	return &projects
 }
 

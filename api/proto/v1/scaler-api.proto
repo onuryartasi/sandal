@@ -37,6 +37,13 @@ message project{
 message projectInfo{
     repeated string containerId = 1;
 }
+
+message StopProjectRequest{
+    string projectName = 1;
+}
+message StopProjectResponse{
+    repeated string containerID = 1;
+}
 service containerService {
     rpc containerList(google.protobuf.Empty) returns (containers);
     rpc containerStop(containerId) returns (containerId);
@@ -45,4 +52,5 @@ service containerService {
     rpc containerRemove (containerId) returns (containerId);
     rpc containerStatStream(containerId) returns (stream containerStat);
     rpc createProject(project) returns (projectInfo);
+    rpc stopProject(StopProjectRequest) returns (StopProjectResponse);
 }

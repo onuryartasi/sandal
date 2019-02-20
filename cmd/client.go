@@ -124,8 +124,8 @@ func main() {
 		fmt.Println(resp)
 	case "stop":
 		client := connect()
-		containerId := string(os.Args[2])
-		resp, err := client.ContainerStop(context.Background(), &v1.ContainerId{ContainerId: containerId})
+		projectName := string(os.Args[2])
+		resp, err := client.StopProject(context.Background(), &v1.StopProjectRequest{ProjectName: projectName})
 		if err != nil {
 			log.Printf(ErrorColor, "Error: Contaner Stop error")
 		}
